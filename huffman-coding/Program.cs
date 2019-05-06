@@ -17,55 +17,62 @@ namespace Huffman {
                 Storage.Add(NewNode);
             }
         }
-        // Internal function used to update NextIndex with the node that has the lowest Value
+        // Internal function used to update NextIndex with the index of the node that has the lowest Value
         private void FindNextIndex() {
             NextIndex = 0;
             for (int i = 0; i < Storage.Count; ++i)
                 if (Storage.ElementAt(NextIndex).Value > Storage.ElementAt(i).Value)
                     NextIndex = i;
         }
-        public void Enqueue(KeyValuePair<char, int> Element) {
-            // Check if the data being Enqueued has a lower frequency and if true, update NextIndex
-            if (Storage.ElementAt(NextIndex).Value > Element.Value)
-                // Next element added to the storage will have index = Count due to List index being zero-based
-                NextIndex = Storage.Count;
-            HuffmanTreeNode NewNode = new HuffmanTreeNode(Element.Key, Element.Value);
-            Storage.Add(NewNode);
-        }
-        public void Enqueue(HuffmanTreeNode Node) {
+        // Internal function used to add new elements to the internal nodes list
+        private void Add(HuffmanTreeNode Node)
+        {
+            if (Storage.Count != 0)
+            {
+                if (Storage.ElementAt(NextIndex).Value > Node.Value)
+                    NextIndex = Storage.Count;
+            }
             Storage.Add(Node);
         }
+        // Create a new node from the KeyValuePair and pass it to Add()
+        public void Enqueue(KeyValuePair<char, int> Element) {
+            HuffmanTreeNode NewNode = new HuffmanTreeNode(Element.Key, Element.Value);
+            Add(NewNode);
+        }
+        public void Enqueue(HuffmanTreeNode Node) {
+            Add(Node);
+        }
+        //  Make a copy of the next element, remove it, call FindNextIndex() and return the copy
         public HuffmanTreeNode Dequeue() {
             var Next = Storage.ElementAt(NextIndex);
             Storage.RemoveAt(NextIndex);
             FindNextIndex();
             return Next;
         }
+        // Returns true if the internal list Storage has no elements
         public bool IsEmpty() {
             return Storage.Count == 0;
         }
+        // Getter for Storage's count
         public int Count {
             get {
                 return Storage.Count;
             }
         }
-        private int NextIndex = 0;
-        private List<HuffmanTreeNode> Storage;
+        private int NextIndex = 0; // The index of the next element in the priority queue
+        private List<HuffmanTreeNode> Storage; // Internal list used to store elements in the queue
     }
     class HuffmanTreeNode
     {
-        public enum NodeType {
-            TYPE_LEAF,
-            TYPE_PATH
-        }
+        // Create a new HuffmanTreeNode from a character and a frequency
         public HuffmanTreeNode(char c, int frequency) {
-            Type = NodeType.TYPE_LEAF;
             Character = c;
             Value = frequency;
         }
+        // Create a new HuffmanTreeNode from two nodes
         public HuffmanTreeNode(HuffmanTreeNode Node1, HuffmanTreeNode Node2) {
-            Type = NodeType.TYPE_PATH;
             Value = Node1.Value + Node2.Value;
+            // Make sure that the Left node is the node with a higher frequency
             if (Node1.Value > Node2.Value)
             {
                 LeftNode = Node1;
@@ -76,10 +83,10 @@ namespace Huffman {
                 LeftNode = Node2;
                 RightNode = Node1;
             }
+            // Make this node the parent of the two nodes
             Node1.ParentNode = this;
             Node2.ParentNode = this;
         }
-        public NodeType Type { get; private set; }
         public char Character { get; private set; }
         public int Value { get; private set; }
         public HuffmanTreeNode LeftNode { get; private set; } = null;
@@ -87,17 +94,24 @@ namespace Huffman {
         public HuffmanTreeNode ParentNode { get; private set; } = null;
     }
     class HuffmanTree {
+        // Create a tree from a list of KeyValuePairs of chars and ints
         public HuffmanTree(List<KeyValuePair<char, int>> IV) {
+            // Create a new priority queue to help us build the tree
             HuffmanPriorityQueue Queue = new HuffmanPriorityQueue(IV);
+            // Repeat until one node is left in the queue
             while (Queue.Count != 1) {
+                // Get the first two elements from the queue
                 HuffmanTreeNode FirstNode = Queue.Dequeue();
                 HuffmanTreeNode SecondNode = Queue.Dequeue();
+                // Merge the two nodes together
                 HuffmanTreeNode NewNode = Merge(FirstNode, SecondNode);
                 Queue.Enqueue(NewNode);
             }
+            // "Initialize" Root with the last element of the queue and Position with Root
             Root = Queue.Dequeue();
             Position = Root;
         }
+        // Create a new node with the two nodes as children and return it
         HuffmanTreeNode Merge(HuffmanTreeNode FirstNode, HuffmanTreeNode SecondNode) {
             return new HuffmanTreeNode(FirstNode, SecondNode);
         }
@@ -154,7 +168,6 @@ namespace Huffman {
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.Write(Character + "\n\n");
                 Console.ForegroundColor = tmp;
-                //Console.WriteLine("Value: {0}\nCharacter: {1}\n", Value, Character);
             }
             HuffmanTreeNode NodeRef = null;
             int Value {
