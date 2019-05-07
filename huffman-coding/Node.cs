@@ -5,37 +5,43 @@ using System.Text;
 namespace Huffman
 {
     // Specialized Node for Huffman Tree
-    class Node
+    public class Node
     {
         // Create a new HuffmanTreeNode from a character and a frequency
-        public Node(char c, int frequency)
+        public Node(Tree Owner, char Char, int Freq)
         {
-            Character = c;
-            Value = frequency;
+            Character = Char;
+            Value = Freq;
+            Tree = Owner;
         }
         // Create a new HuffmanTreeNode from two nodes
-        public Node(Node Node1, Node Node2)
+        public Node(Tree Owner, Node FirstNode, Node SecondNode)
         {
-            Value = Node1.Value + Node2.Value;
+            Tree = Owner;
+            Value = FirstNode.Value + SecondNode.Value;
             // Make sure that the Left node is the node with a higher frequency
-            if (Node1.Value > Node2.Value)
+            if (FirstNode.Value > SecondNode.Value)
             {
-                LeftNode = Node1;
-                RightNode = Node2;
+                Left = FirstNode;
+                Right = SecondNode;
             }
             else
             {
-                LeftNode = Node2;
-                RightNode = Node1;
+                Left = SecondNode;
+                Right = FirstNode;
             }
             // Make this node the parent of the two nodes
-            Node1.ParentNode = this;
-            Node2.ParentNode = this;
+            FirstNode.Parent = this;
+            SecondNode.Parent = this;
+        }
+        public bool IsVisited() {
+            return Tree.IsVisited(this);
         }
         public char Character { get; private set; }
         public int Value { get; private set; }
-        public Node LeftNode { get; private set; } = null;
-        public Node RightNode { get; private set; } = null;
-        public Node ParentNode { get; private set; } = null;
+        public Node Left { get; private set; } = null;
+        public Node Right { get; private set; } = null;
+        public Node Parent { get; private set; } = null;
+        private Tree Tree;
     }
 }

@@ -5,13 +5,15 @@ using System.Text;
 namespace Huffman
 {
     // Specialized tree for Huffman coding
-    class Tree
+    public class Tree
     {
-        // Create a tree from a list of KeyValuePairs of chars and ints
-        public Tree(List<KeyValuePair<char, int>> IV)
+        // Create a tree from a dictionary containing the chars and their frequencies
+        public Tree(Dictionary<char, int> Dataset)
         {
+            // Initialize the list of the visited nodes
+            Visited = new List<Node>();
             // Create a new priority queue to help us build the tree
-            PriorityQueue Queue = new PriorityQueue(IV);
+            PriorityQueue Queue = new PriorityQueue(Dataset);
             // Repeat until one node is left in the queue
             while (Queue.Count != 1)
             {
@@ -22,94 +24,58 @@ namespace Huffman
                 Node NewNode = Merge(FirstNode, SecondNode);
                 Queue.Enqueue(NewNode);
             }
-            // "Initialize" Root with the last element of the queue and Position with Root
+            // Assign the last element  of the queue and Position with Root
             Root = Queue.Dequeue();
             Position = Root;
         }
         // Create a new node with the two nodes as children and return it
         Node Merge(Node FirstNode, Node SecondNode)
         {
-            return new Node(FirstNode, SecondNode);
+            return new Node(this, FirstNode, SecondNode);
         }
         public enum TraverseDirection
         {
             TRAVERSE_LEFT,
             TRAVERSE_RIGHT,
             TRAVERSE_UP,
-            TRAVERSE_CURRENT,
             TRAVERSE_ROOT
         }
-        public NodeInfo TraverseTree(TraverseDirection Direction)
-        {
-            switch (Direction)
-            {
+        // Move the Position pointer toward the given TraverseDirection
+        public void Move(TraverseDirection Direction) {
+            switch (Direction) {
                 case TraverseDirection.TRAVERSE_LEFT:
-                    Position = Position.LeftNode;
+                    Position = Position.Left;
                     break;
                 case TraverseDirection.TRAVERSE_RIGHT:
-                    Position = Position.RightNode;
+                    Position = Position.Right;
                     break;
                 case TraverseDirection.TRAVERSE_UP:
-                    Position = Position.ParentNode;
+                    Position = Position.Parent;
                     break;
                 case TraverseDirection.TRAVERSE_ROOT:
                     Position = Root;
                     break;
-                default:
-                    break;
             }
-            if (Position == null)
-            {
-                ConsoleColor TempColor = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Null node! Repositioning to Root...\n");
-                Console.ForegroundColor = TempColor;
-                Position = Root;
-            }
-            return new NodeInfo(Position);
+
         }
-        public class NodeInfo
+        // Getter for current node given by Position
+        public Node CurrentNode
         {
-            public NodeInfo(Node Node)
+            get
             {
-                NodeRef = Node;
-                DisplayInfo();
+                return Position;
             }
-            void DisplayInfo()
-            {
-                if (NodeRef == null)
-                {
-                    Console.WriteLine("NULL");
-                    return;
-                }
-                ConsoleColor tmp = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.Write("Value ");
-                Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.Write(Value);
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.Write("\nChar ");
-                Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.Write(Character + "\n\n");
-                Console.ForegroundColor = tmp;
-            }
-            Node NodeRef = null;
-            int Value
-            {
-                get
-                {
-                    return NodeRef.Value;
-                }
-            }
-            char Character
-            {
-                get
-                {
-                    return NodeRef.Character;
-                }
-            }
+        }
+        public void Visit(Node Node) {
+            Visited.Add(Node);
+        }
+        public bool IsVisited(Node Node) {
+            if (Visited.Contains(Node))
+                return true;
+            return false;
         }
         private Node Root;
         private Node Position = null;
+        private List<Node> Visited;
     }
 }

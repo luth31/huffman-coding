@@ -7,7 +7,7 @@ namespace Huffman
     class PriorityQueue
     {
         // Create a new priority queue based on a predefined list of key value pairs of chars and ints
-        public PriorityQueue(List<KeyValuePair<char, int>> Data)
+        public PriorityQueue(Dictionary<char, int> Data)
         {
             Storage = new List<Node>();
             for (int i = 0; i < Data.Count; ++i)
