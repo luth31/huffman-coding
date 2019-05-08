@@ -13,6 +13,7 @@ namespace Huffman
         }
         public void BuildFrom(Tree Tree)
         {
+            List<char> wannabeStack = new List<char>();
             Tree.Move(Tree.TraverseDirection.TRAVERSE_ROOT);
             while (true)
             {
@@ -21,7 +22,23 @@ namespace Huffman
                     Tree.CurrentNode.Left.IsVisited() &&
                     Tree.CurrentNode.Right.IsVisited())
                     break;
-                if (!Tree.CurrentNode.Left.IsVisited()) {
+                if (Tree.CurrentNode.Left != null) {
+                    if (!Tree.CurrentNode.Left.IsVisited()) {
+                        wannabeStack.Add('0');
+                        Tree.Move(Tree.TraverseDirection.TRAVERSE_LEFT);
+                        continue;
+                    }
+                }
+                if (Tree.CurrentNode.Right != null) {
+                    if (!Tree.CurrentNode.Right.IsVisited()) {
+                        wannabeStack.Add('1');
+                        Tree.Move(Tree.TraverseDirection.TRAVERSE_RIGHT);
+                        continue;
+                    }
+                }
+                if (Tree.CurrentNode.Character != '\0')
+                {
+                    Console.WriteLine("{0} = ", Tree.CurrentNode.Character);
 
                 }
             }
